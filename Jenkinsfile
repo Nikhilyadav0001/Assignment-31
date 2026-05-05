@@ -19,8 +19,8 @@ pipeline {
                 dir('frontend') {
                     // Using sh for Linux/macOS Jenkins agents. 
                     // Note: If your Jenkins runs directly on Windows, change 'sh' to 'bat'
-                    sh 'npm install'
-                    sh 'npm run build'
+                    bat 'npm install'
+                    bat 'npm run build'
                 }
             }
         }
@@ -28,7 +28,7 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh 'npm install'
+                    bat 'npm install'
                     // Uncomment the line below once you add tests to backend/package.json
                     // sh 'npm test' 
                 }
@@ -38,14 +38,14 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 // Validates that the Dockerfiles build successfully
-                sh 'docker compose build'
+                bat 'docker compose build'
             }
         }
 
         stage('Deploy') {
             steps {
                 // Starts the application in detached mode (-d)
-                sh 'docker compose up -d'
+                bat 'docker compose up -d'
             }
         }
     }
