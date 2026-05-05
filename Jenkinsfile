@@ -43,8 +43,8 @@ pipeline {
             steps {
                 script {
                     if (fileExists('docker-compose.yml')) {
-                        bat 'docker compose build'
-                        bat 'docker compose up -d'
+                        bat 'docker compose down'
+                        bat 'docker compose up -d --build'
                     }
                 }
             }
