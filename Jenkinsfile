@@ -2,65 +2,58 @@ pipeline {
     agent any
 
     environment {
-        // Define environment variables here if needed
-        COMPOSE_PROJECT_NAME = 'school-management'
+        BACKEND_DIR = 'backend'
+        FRONTEND_DIR = 'frontend'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checks out the source code from your Git repository
                 checkout scm
             }
         }
-
-        stage('Build Frontend') {
+        stage('Backend Install & Test') {
             steps {
-                dir('frontend') {
-                    // Using sh for Linux/macOS Jenkins agents. 
-                    // Note: If your Jenkins runs directly on Windows, change 'sh' to 'bat'
-                    bat 'npm install'
-                    bat 'npm run build'
+                dir(env.BACKEND_DIR) {
+                    script {
+                        if (fileExists('package.json')) {
+                            bat 'npm install'
+                            // Uncomment if you have tests
+                            // bat 'npm test'
+                        }
+                    }
                 }
             }
         }
-
-        stage('Build Backend') {
+        stage('Frontend Install & Build') {
             steps {
-                dir('backend') {
-                    bat 'npm install'
-                    // Uncomment the line below once you add tests to backend/package.json
-                    // sh 'npm test' 
+                dir(env.FRONTEND_DIR) {
+                    script {
+                        if (fileExists('package.json')) {
+                            bat 'npm install'
+                            // Uncomment if you have tests
+                            // bat 'npm test'
+                            bat 'npm run build'
+                        }
+                    }
                 }
             }
         }
-
-        stage('Build Docker Images') {
+        stage('Docker Build & Compose') {
             steps {
-                // Validates that the Dockerfiles build successfully
-                bat 'docker compose build'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Starts the application in detached mode (-d)
-                bat 'docker compose up -d'
+                script {
+                    if (fileExists('docker-compose.yml')) {
+                        bat 'docker-compose build'
+                        // Uncomment to run containers
+                        // bat 'docker-compose up -d'
+                    }
+                }
             }
         }
     }
-
     post {
         always {
-            echo 'Pipeline execution finished.'
-        }
-        success {
-            echo '✅ Application successfully built and deployed!'
-        }
-        failure {
-            echo '❌ Pipeline failed. Please check the logs.'
-            // Optional: stop containers if the deployment fails
-            // sh 'docker compose down'
+            cleanWs()
         }
     }
 }
