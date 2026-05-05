@@ -43,7 +43,9 @@ pipeline {
             steps {
                 script {
                     if (fileExists('docker-compose.yml')) {
-                        bat 'docker compose down'
+                        bat 'docker compose down --remove-orphans'
+                        // Force-remove named containers that may linger from prior runs
+                        bat 'docker rm -f schooldb school_backend school_frontend || exit 0'
                         bat 'docker compose up -d --build'
                     }
                 }
