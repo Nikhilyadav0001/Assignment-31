@@ -18,7 +18,7 @@ pipeline {
                     script {
                         if (fileExists('package.json')) {
                             bat 'npm install'
-                            // Uncomment if you have tests
+                            // Uncomment if you have tests ethgdshs
                             // bat 'npm test'
                         }
                     }
